@@ -9,7 +9,8 @@ var app 	=	express();
 var bodyParser	=	require('body-parser');
 var mongoose	=	require('mongoose');
 var message		=	require('./models/dbobjects.js');
-mongoose.connect('mongodb://localhost/test');
+var elasticsearch = require('elasticsearch');
+mongoose.connect('mongodb://localhost/test', { keepAlive: 1});
 
 // Database
 
@@ -19,6 +20,10 @@ db.once('open', function callback(){
 	//yay!
 	console.log("DB OPEN!");
 })
+
+var client = new elasticsearch.Client({
+	host: 'localhost:8080'
+});
 
 
 //configure app to use bodyParser()
@@ -37,6 +42,20 @@ var router	=	express.Router();	// get an instance of the express router
 //test route to make suer everything is working (accessed at GET http://localhost:8080/api)
 router.get('/', function(req,res){
 	res.json({ message: 'hooray! welcome to our api!'});
+});
+
+router.get('/allKeys', function(req,res){
+	message.find({},function(err, object){
+		if(err){
+			console.log("feck " + err)
+		}
+		else{
+
+			console.log(object);
+			res.json(object);
+		}
+	});
+	
 });
 
 // more routes for our API will happen here

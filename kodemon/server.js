@@ -16,6 +16,10 @@ db.once('open', function callback(){
 	console.log("DB OPEN!");
 })
 
+var client = new elasticsearch.Client({
+  host: 'localhost:9200'
+});
+
 server.on("message", function(msg, rinfo){
   console.log('got message from client: ' + msg);
 
@@ -28,13 +32,23 @@ server.on("message", function(msg, rinfo){
   rcvmessage.token = parsedmsg.token;
   rcvmessage.key = parsedmsg.key;
 
-  rcvmessage.save(function(err){
+  rcvmessage.save(function(err, b){
   	if(err)
   	{
-  		console.log('saving failed')
+  		console.log('saving failed ' + err);
   	}
   	else{
-  		console.log('saving');	
+  		console.log('saving');
+      
+      client.index({
+        index: 'kodemon',
+        type: 'execution',
+        id: String(b._id),
+        body: parsedmsg},
+        function (error, response) {
+          console.log(error);
+          console.log(response);
+        });
   	}
   	
   });
