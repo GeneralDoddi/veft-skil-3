@@ -1,5 +1,9 @@
 var dgram = require("dgram");
 var mongoose = require("mongoose");
+var bodyParser = require('body-parser');
+var elasticsearch = require('elasticsearch');
+
+
 mongoose.connect('mongodb://localhost/test', { keepAlive: 1});
 var rcvdMessage		=	require('./NodeServer/models/dbobjects.js');
 
