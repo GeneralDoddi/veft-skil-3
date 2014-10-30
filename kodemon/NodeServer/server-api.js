@@ -45,9 +45,9 @@ router.get('/', function(req,res){
 });
 
 router.get('/allKeys', function(req,res){
-	message.find({},function(err, object){
+	message.find().distinct('key',function(err, object){
 		if(err){
-			console.log("feck " + err)
+			console.log("feck " + err);
 		}
 		else{
 
@@ -56,6 +56,36 @@ router.get('/allKeys', function(req,res){
 		}
 	});
 	
+});
+
+router.get('/executionTimes/:key', function(req,res){
+	message.find({'key': req.params.key},'execution_time', function(err, object){
+		if(err){
+			console.log("feck " + err);
+		}
+		else{
+			//var derp = JSON.parse(object);
+			console.log(object);
+			res.json(object);
+		}
+	});
+});
+
+router.get('/executionTimes/:key/from/:date1/to/:date2',function(req,res){
+	message.find({'key': req.params.key})
+	.where('timestamp')
+	.gt(new Date(req.params.date1))
+	.lt(new Date(req.params.date2))
+	.select('execution_time').exec(function(err, object){
+		if(err){
+			console.log(err);
+		}
+		else{
+			console.log(object);
+			res.json(object);
+		}
+		
+	});
 });
 
 // more routes for our API will happen here
