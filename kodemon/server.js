@@ -28,7 +28,7 @@ server.on("message", function(msg, rinfo){
 
 
   rcvmessage.execution_time = parsedmsg.execution_time;
-  rcvmessage.timestamp = parsedmsg.timestamp;
+  rcvmessage.timestamp = new Date(parsedmsg.timestamp*1000);
   rcvmessage.token = parsedmsg.token;
   rcvmessage.key = parsedmsg.key;
 
