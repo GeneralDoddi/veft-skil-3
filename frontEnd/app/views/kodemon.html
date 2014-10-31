@@ -1,15 +1,33 @@
 <div ng-controller="KodemonCtrl">
   
-  <button ng-click="loadKodemonList()">Load</button>
+  <button ng-click="loadKeyList()">Load</button>
   <div>
+  	<p>1. krafa - /allKeys</p>
   	<ul>
-		<li ng-repeat="result in results">
-				{{result[1]}}
-		
+		<li ng-repeat="key in keys">
+			<div ng-click = "loadExecutionTimes(key)">{{ key }}</div>
+		</li>
+	</ul>
+  </div>
 
+	
+  <div>
+  	<p>2. krafa - /executionTimes/:key</p>
+  	<ul>
+		<li ng-repeat="execTime in execTimes">
+				{{ execTime.execution_time }}		
 			</li>
 		</ul>
 	</div>
 
+	<div>
+  	<p>3. krafa - /executionTimes/:key/from/:date1/to/:date2</p>
+  	<ul>
 
+		<!-- TODO: búa til 2 date pickers og ng-click fyrir loadKeyFromDates(key,date1,date2)
+		<li ng-repeat="execTime in execTimes">
+				{{ execTime.execution_time }}		
+			</li>
+		</ul>-->
+	</div>
 </div>

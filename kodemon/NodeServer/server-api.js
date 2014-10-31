@@ -11,18 +11,13 @@ var bodyParser		=	require('body-parser');
 var mongoose		=	require('mongoose');
 var message			=	require('./models/dbobjects.js');
 var elasticsearch 	= 	require('elasticsearch');
+var cors 			=	require('cors');
 //var cors 			=	require('cors');
 mongoose.connect('mongodb://localhost/test', { keepAlive: 1});
 
-//Cors
-var allowCrossDomain = function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "X-Requested-With");
-  next();
+// Allow-Origin 
+app.use(cors());
 
-}
-
-app.use(allowCrossDomain);
 // Database
 
 var db = mongoose.connection;
@@ -33,7 +28,7 @@ db.once('open', function callback(){
 })
 
 var client = new elasticsearch.Client({
-	host: 'localhost:8080'
+	host: 'localhost:9200'
 });
 
 
@@ -58,7 +53,7 @@ router.get('/', function(req,res,next){
 });
 
 router.get('/allKeys', function(req,res,next){
-	message.find({},function(err, object){
+	message.find().distinct('key',function(err, object){
 
 		if(err){
 			console.log("feck " + err);
@@ -107,7 +102,7 @@ router.get('/executionTimes/:key/from/:date1/to/:date2',function(req,res){
 // REGISTER OUR ROUTES ------------------
 // al of our routes will be prefixed with /api
 
-router.use('/api');
+app.use('/api', router);
 
 // START THE SERVER
 // =============================================================================================
