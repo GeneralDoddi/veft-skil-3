@@ -52,8 +52,65 @@ router.get('/', function(req,res,next){
 	res.json({ message: 'hooray! welcome to our api!'});
 });
 
+/*
+	***************** ELASTIC SEARCH SETUP ************************
+
+	run this string in console on elasticsearch to set the parameters for searching
+
+	curl -XPUT localhost:9200/kodemon -d '{
+		"mappings": {
+			"execution": {
+				"_timestamp": {
+					"enabled": "true"
+					},
+		"properties": {
+			"execution_time": {
+				"type": "integer"
+				},
+		"timestamp": {
+			"type": "date"
+		},
+		"token": {
+			"type": "string",
+			"index": "not_analyzed"
+		},
+		"key": {
+		"type": "string",
+		"index": "not_analyzed"
+		}
+		}
+		}
+		}
+		}
+		'
+*/
+
 router.get('/allKeys', function(req,res,next){
-	message.find().distinct('key',function(err, object){
+	client.search({
+			index: 'kodemon',
+			size: 0,
+			body: {
+				aggregations: {
+					key_list: {
+						terms: {
+							field: 'key'
+
+							}	
+						}
+					}
+				}
+	},function(err, object) { 
+		if(err){
+			console.log("feck " + err)
+		}
+		else{
+			console.log(object);
+			res.json(object);
+		}
+	});
+
+	// mongodb search
+	/*message.find().distinct('key',function(err, object){
 
 		if(err){
 			console.log("feck " + err);
@@ -63,12 +120,28 @@ router.get('/allKeys', function(req,res,next){
 			console.log(object);
 			res.json(object);
 		}
-	});
+	});*/
 	
 });
 
 router.get('/executionTimes/:key', function(req,res){
-	message.find({'key': req.params.key},'execution_time', function(err, object){
+
+	client.search({
+		index: 'kodemon',
+		body: {
+			query: {
+				query_string: {
+					query: req.params.key
+				}
+			}
+		}
+	}).then(function (object) {
+		console.log(object);
+		res.json(object);
+	});
+
+	//mongodb search 
+	/*message.find({'key': req.params.key},'execution_time', function(err, object){
 		if(err){
 			console.log("feck " + err);
 		}
@@ -77,10 +150,39 @@ router.get('/executionTimes/:key', function(req,res){
 			console.log(object);
 			res.json(object);
 		}
-	});
+	});*/
 });
 
 router.get('/executionTimes/:key/from/:date1/to/:date2',function(req,res){
+	
+	client.search({
+		index: 'kodemon',
+		type: 'execution',
+		body: {
+			query : {
+				filtered : {
+					query: {
+						query_string: {
+							query : req.params.key
+							}
+						},
+						filter: {
+							range : {
+								timestamp: {
+									gte: new Date(req.params.date1),
+									lt: new Date(req.params.date2)
+								}
+							}
+						}
+					}
+				}
+			}
+		}, function(err, object) {
+			console.log(object);
+			res.json(object);
+		});
+
+	/* // mongoDB connection
 	message.find({'key': req.params.key})
 	.where('timestamp')
 	.gt(new Date(req.params.date1))
@@ -94,7 +196,7 @@ router.get('/executionTimes/:key/from/:date1/to/:date2',function(req,res){
 			res.json(object);
 		}
 		
-	});
+	});*/
 });
 
 // more routes for our API will happen here

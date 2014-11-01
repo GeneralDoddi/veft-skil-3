@@ -44,10 +44,14 @@ server.on("message", function(msg, rinfo){
         index: 'kodemon',
         type: 'execution',
         id: String(b._id),
-        body: parsedmsg},
+        body: rcvmessage},
         function (error, response) {
-          console.log(error);
-          console.log(response);
+          if(error){
+            console.log(error);
+          }
+          else{
+            console.log(response);
+          }
         });
   	}
   	
